@@ -174,9 +174,141 @@ class APISecurityTester:
                 self.test_xss(endpoint)
                 self.test_csrf(endpoint)
                 self.test_command_injection(endpoint)
+
+                # Nuevos métodos de prueba
+                self.test_xss(endpoint)
+                self.test_csrf(endpoint)
+                self.test_command_injection(endpoint)
+
             except Exception as e:
                  print(f"Error al probar {endpoint}: {e}")
+    def test_xss(self, endpoint):
+        """Prueba de Cross-Site Scripting (XSS)"""
+        url = urljoin(self.base_url, endpoint)
+        
+        payloads = [
+            "<script>alert('XSS')</script>",
+            "'; DROP TABLE users; --",
+            "<img src=x onerror=alert('XSS')>",
+            "javascript:alert('XSS')"
+        ]
+        
+        for payload in payloads:
+            try:
+                # Intentar con diferentes métodos y tipos de solicitud
+                # Prueba POST con payload en JSON
+                response_json = requests.post(url, 
+                    json={"input": payload}, 
+                    headers=self.security_headers
+                )
+                
+                # Prueba GET con payload en parámetros
+                response_get = requests.get(url, 
+                    params={"input": payload}, 
+                    headers=self.security_headers
+                )
+                
+                print(f"Testing XSS with payload: {payload}")
+                print(f"POST Status Code: {response_json.status_code}")
+                print(f"GET Status Code: {response_get.status_code}")
+                
+                # Verificar si el payload se refleja en la respuesta
+                if payload in response_json.text or payload in response_get.text:
+                    print(f"[!] Posible vulnerabilidad XSS detectada en {endpoint}")
+                    print("Respuesta JSON:", response_json.text)
+                    print("Respuesta GET:", response_get.text)
+                
+            except Exception as e:
+                print(f"Error al probar XSS con payload {payload}: {e}")
 
+    def test_csrf(self, endpoint):
+        """Prueba de Cross-Site Request Forgery (CSRF)"""
+        url = urljoin(self.base_url, endpoint)
+        
+        # Crear solicitudes con diferentes orígenes y referentes
+        csrf_test_cases = [
+            {
+                "headers": {
+                    "Origin": "http://localhost:3000",
+                    "Referer": "http://localhost:3000/"
+                },
+                "data": {"action": "delete_account"}
+            },
+            {
+                "headers": {
+                    "Origin": "",
+                    "Referer": ""
+                },
+                "data": {"action": "change_password"}
+            }
+        ]
+        
+        for test_case in csrf_test_cases:
+            try:
+                response = requests.post(
+                    url, 
+                    json=test_case["data"], 
+                    headers={
+                        **self.security_headers,
+                        **test_case["headers"]
+                    }
+                )
+                
+                print(f"Testing CSRF at {url}")
+                print(f"Headers: {test_case['headers']}")
+                print(f"Status Code: {response.status_code}")
+                
+                # Verificar si la solicitud se procesa sin validación adecuada
+                if response.status_code in [200, 201]:
+                    print("[!] Posible vulnerabilidad CSRF detectada")
+                    print("Respuesta:", response.text)
+                
+            except Exception as e:
+                print(f"Error al probar CSRF: {e}")
+
+    def test_command_injection(self, endpoint):
+        """Prueba de inyección de comandos"""
+        url = urljoin(self.base_url, endpoint)
+        
+        payload_cases = [
+            "&& ls -la",
+            "$(whoami)",
+            "`ls -la`",
+            "| cat /etc/passwd",
+            ";cat /etc/passwd"
+        ]
+        
+        for payload in payload_cases:
+            try:
+                # Probar diferentes métodos de inyección
+                response_json = requests.post(
+                    url, 
+                    json={"input": payload}, 
+                    headers=self.security_headers
+                )
+                
+                response_get = requests.get(
+                    url, 
+                    params={"input": payload}, 
+                    headers=self.security_headers
+                )
+                
+                print(f"Testing command injection with payload: {payload}")
+                print(f"POST Status Code: {response_json.status_code}")
+                print(f"GET Status Code: {response_get.status_code}")
+                
+                # Verificar si hay indicios de ejecución de comandos
+                if any([
+                    "total" in response_json.text,  # Salida de ls -la
+                    "root" in response_json.text,   # Usuario root
+                    "passwd" in response_json.text  # Contenido de archivo sensible
+                ]):
+                    print("[!] Posible vulnerabilidad de inyección de comandos")
+                    print("Respuesta POST:", response_json.text)
+                    print("Respuesta GET:", response_get.text)
+                
+            except Exception as e:
+                print(f"Error al probar inyección de comandos con payload {payload}: {e}")
 # Ejemplo de uso
 if __name__ == "__main__":
     tester = APISecurityTester("http://localhost:3000/")
