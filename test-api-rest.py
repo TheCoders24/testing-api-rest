@@ -1,5 +1,6 @@
 import requests
 from urllib.parse import urljoin
+import random
 
 
 class APISecurityTester:
@@ -109,8 +110,32 @@ class APISecurityTester:
         self.test_sensitive_endpoints()
         self.test_rate_limiting("/api/productos")
         self.test_headers("/")
-        self.test_login("/api/login", {"username": "admin", "password": "password123"})
-        self.test_register("/api/register", {"username": "newuser", "password": "securepassword"})
+        # Testear login y registro
+        #self.test_login("/api/login", {"username": "admin", "password": "password123"})
+        #self.test_register("/api/register", {"username": "newuser", "password": "securepassword"})
+        
+        login_credentials = [
+        {"username": "admin", "password": "password123"},
+        {"username": "user1", "password": "mypassword"},
+        {"username": "testuser", "password": "testpass"},
+        {"username": "guest", "password": "guestpass"},
+        {"username": "randomuser", "password": "randompass123"},
+        ]
+
+        register_data = [
+        {"username": "newuser", "password": "securepassword"},
+        {"username": "anotheruser", "password": "anotherpass"},
+        {"username": "user2", "password": "user2password"},
+        {"username": "testuser2", "password": "testpass2"},
+        {"username": "randomuser2", "password": "randompass456"},
+        ]
+
+        random_login = random.choice(login_credentials)
+        random_register = random.choice(register_data)
+
+        # Ejecución de las pruebas
+        self.test_login("/api/login", random_login)
+        self.test_register("/api/register", random_register)
         self.test_methods("/api/productos")
 
 
