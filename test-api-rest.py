@@ -236,10 +236,10 @@ class APISecurityTester:
             },
             {
                 "headers": {
-                    "Origin": "",
-                    "Referer": ""
+                    "Origin": "http://localhost:3000",
+                    "Referer": "http://localhost:3000"
                 },
-                "data": {"action": "change_password"}
+                "data": {"action": "123456789"}
             }
         ]
         
