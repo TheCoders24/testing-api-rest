@@ -1,0 +1,176 @@
+--- Probando endpoint: /api/login ---
+Payload: ' OR '1'='1 | Status Code: 405
+Payload: '; DROP TABLE users; -- | Status Code: 405
+Payload: " OR "1"="1 | Status Code: 405
+Payload: 1 OR 1=1 | Status Code: 405
+Testing http://localhost:3000/admin | Status Code: 404
+Testing http://localhost:3000/config | Status Code: 404
+Testing http://localhost:3000/.env | Status Code: 404
+Testing http://localhost:3000/backup | Status Code: 404
+Testing http://localhost:3000/users | Status Code: 404
+Testing http://localhost:3000/register | Status Code: 404
+Testing http://localhost:3000/productos | Status Code: 404
+Request 1 - Status Code: 405
+Request 2 - Status Code: 405
+Request 3 - Status Code: 405
+Request 4 - Status Code: 405
+Request 5 - Status Code: 405
+Request 6 - Status Code: 405
+Request 7 - Status Code: 405
+Request 8 - Status Code: 405
+Request 9 - Status Code: 405
+Request 10 - Status Code: 405
+Request 11 - Status Code: 405
+Request 12 - Status Code: 405
+Request 13 - Status Code: 405
+Request 14 - Status Code: 405
+Request 15 - Status Code: 405
+Request 16 - Status Code: 405
+Request 17 - Status Code: 405
+Request 18 - Status Code: 405
+Request 19 - Status Code: 405
+Request 20 - Status Code: 405
+[!] Endpoint sin limitación de tasa aparente
+Testing headers for http://localhost:3000/api/login
+[!] Header de seguridad ausente: Content-Security-Policy
+[!] Header de seguridad ausente: Strict-Transport-Security
+[!] Header de seguridad ausente: X-Frame-Options
+[!] Header de seguridad ausente: X-Content-Type-Options
+[!] Header de seguridad ausente: Referrer-Policy
+Testing GET on http://localhost:3000/api/login | Status Code: 405
+[!] Método GET no permitido (405 Method Not Allowed)
+Testing POST on http://localhost:3000/api/login | Status Code: 400
+[!] Método POST rechazado con código 400
+Testing PUT on http://localhost:3000/api/login | Status Code: 405
+[!] Método PUT no permitido (405 Method Not Allowed)
+Testing DELETE on http://localhost:3000/api/login | Status Code: 405
+[!] Método DELETE no permitido (405 Method Not Allowed)
+
+--- Análisis de Restricciones de Métodos ---
+[!] Métodos bloqueados: GET, POST, PUT, DELETE
+
+Detalles completos:
+GET: {'status_code': 405, 'response_text': '{"success":false,"message":"Method not allowed"}'}
+POST: {'status_code': 400, 'response_text': '{"success":false,"message":"Username and password are required"}'}
+PUT: {'status_code': 405, 'response_text': '{"success":false,"message":"Method not allowed"}'}
+DELETE: {'status_code': 405, 'response_text': '{"success":false,"message":"Method not allowed"}'}
+Error al probar /api/login: 'APISecurityTester' object has no attribute 'test_xss'
+
+--- Probando endpoint: /api/register ---
+Payload: ' OR '1'='1 | Status Code: 405
+Payload: '; DROP TABLE users; -- | Status Code: 405
+Payload: " OR "1"="1 | Status Code: 405
+Payload: 1 OR 1=1 | Status Code: 405
+Testing http://localhost:3000/admin | Status Code: 404
+Testing http://localhost:3000/config | Status Code: 404
+Testing http://localhost:3000/.env | Status Code: 404
+Testing http://localhost:3000/backup | Status Code: 404
+Testing http://localhost:3000/users | Status Code: 404
+Testing http://localhost:3000/register | Status Code: 404
+Testing http://localhost:3000/productos | Status Code: 404
+Request 1 - Status Code: 405
+Request 2 - Status Code: 405
+Request 3 - Status Code: 405
+Request 4 - Status Code: 405
+Request 5 - Status Code: 405
+Request 6 - Status Code: 405
+Request 7 - Status Code: 405
+Request 8 - Status Code: 405
+Request 9 - Status Code: 405
+Request 10 - Status Code: 405
+Request 11 - Status Code: 405
+Request 12 - Status Code: 405
+Request 13 - Status Code: 405
+Request 14 - Status Code: 405
+Request 15 - Status Code: 405
+Request 16 - Status Code: 405
+Request 17 - Status Code: 405
+Request 18 - Status Code: 405
+Request 19 - Status Code: 405
+Request 20 - Status Code: 405
+[!] Endpoint sin limitación de tasa aparente
+Testing headers for http://localhost:3000/api/register
+[!] Header de seguridad ausente: Content-Security-Policy
+[!] Header de seguridad ausente: Strict-Transport-Security
+[!] Header de seguridad ausente: X-Frame-Options
+[!] Header de seguridad ausente: X-Content-Type-Options
+[!] Header de seguridad ausente: Referrer-Policy
+Testing GET on http://localhost:3000/api/register | Status Code: 405
+[!] Método GET no permitido (405 Method Not Allowed)
+Testing POST on http://localhost:3000/api/register | Status Code: 500
+[?] Método POST devolvió código inesperado: 500
+Testing PUT on http://localhost:3000/api/register | Status Code: 405
+[!] Método PUT no permitido (405 Method Not Allowed)
+Testing DELETE on http://localhost:3000/api/register | Status Code: 405
+[!] Método DELETE no permitido (405 Method Not Allowed)
+
+--- Análisis de Restricciones de Métodos ---
+[!] Métodos bloqueados: GET, PUT, DELETE
+
+Detalles completos:
+GET: {'status_code': 405, 'response_text': '{"success":false,"message":"Method not allowed"}'}
+POST: {'status_code': 500, 'response_text': '{"success":false,"message":"Internal server error"}'}
+PUT: {'status_code': 405, 'response_text': '{"success":false,"message":"Method not allowed"}'}
+DELETE: {'status_code': 405, 'response_text': '{"success":false,"message":"Method not allowed"}'}
+Error al probar /api/register: 'APISecurityTester' object has no attribute 'test_xss'
+
+--- Probando endpoint: /api/productos ---
+Payload: ' OR '1'='1 | Status Code: 200
+Payload: '; DROP TABLE users; -- | Status Code: 200
+Payload: " OR "1"="1 | Status Code: 200
+Payload: 1 OR 1=1 | Status Code: 200
+Testing http://localhost:3000/admin | Status Code: 404
+Testing http://localhost:3000/config | Status Code: 404
+Testing http://localhost:3000/.env | Status Code: 404
+Testing http://localhost:3000/backup | Status Code: 404
+Testing http://localhost:3000/users | Status Code: 404
+Testing http://localhost:3000/register | Status Code: 404
+Testing http://localhost:3000/productos | Status Code: 404
+Request 1 - Status Code: 200
+Request 2 - Status Code: 200
+Request 3 - Status Code: 200
+Request 4 - Status Code: 200
+Request 5 - Status Code: 200
+Request 6 - Status Code: 200
+Request 7 - Status Code: 200
+Request 8 - Status Code: 200
+Request 9 - Status Code: 200
+Request 10 - Status Code: 200
+Request 11 - Status Code: 200
+Request 12 - Status Code: 200
+Request 13 - Status Code: 200
+Request 14 - Status Code: 200
+Request 15 - Status Code: 200
+Request 16 - Status Code: 200
+Request 17 - Status Code: 200
+Request 18 - Status Code: 200
+Request 19 - Status Code: 200
+Request 20 - Status Code: 200
+[!] Endpoint sin limitación de tasa aparente
+Testing headers for http://localhost:3000/api/productos
+[!] Header de seguridad ausente: Content-Security-Policy
+[!] Header de seguridad ausente: Strict-Transport-Security
+[!] Header de seguridad ausente: X-Frame-Options
+[!] Header de seguridad ausente: X-Content-Type-Options
+[!] Header de seguridad ausente: Referrer-Policy
+Testing GET on http://localhost:3000/api/productos | Status Code: 200
+[+] Método GET permitido correctamente
+Testing POST on http://localhost:3000/api/productos | Status Code: 400
+[!] Método POST rechazado con código 400
+Testing PUT on http://localhost:3000/api/productos | Status Code: 400
+[!] Método PUT rechazado con código 400
+Testing DELETE on http://localhost:3000/api/productos | Status Code: 400
+[!] Método DELETE rechazado con código 400
+
+--- Análisis de Restricciones de Métodos ---
+[!] Métodos bloqueados: POST, PUT, DELETE
+[+] Métodos permitidos: GET
+
+Detalles completos:
+GET: {'status_code': 200, 'response_text': '[{"producto_id":14,"nombre":"sad","descripcion":"asd","precio":"23.00","cantidad_en_inventario":233},{"producto_id":13,"nombre":"coca coca 600","descripcion":"coca","precio":"10.00","cantidad_en_inventario":100},{"producto_id":3,"nombre":"asdasd","descripcion":"asdas","precio":"2.00","cantidad_en_inventario":23},{"producto_id":1,"nombre":"sadas","descripcion":"sadasd","precio":"23.00","cantidad_en_inventario":1222}]'}
+POST: {'status_code': 400, 'response_text': '{"error":"El nombre es obligatorio"}'}
+PUT: {'status_code': 400, 'response_text': '{"error":"El ID del producto es obligatorio"}'}
+DELETE: {'status_code': 400, 'response_text': '{"error":"El ID del producto es obligatorio"}'}
+Error al probar /api/productos: 'APISecurityTester' object has no attribute 'test_xss'
+Pruebas completadas con éxito.
+¡Felicitaciones! Tu API está segura.

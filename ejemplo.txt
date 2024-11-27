@@ -5,13 +5,6 @@ from urllib.parse import urljoin
 class APISecurityTester:
     def __init__(self, base_url):
         self.base_url = base_url
-        self.security_headers = {
-            "Content-Security-Policy": "default-src 'self'",
-            "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-            "X-Frame-Options": "DENY",
-            "X-Content-Type-Options": "nosniff",
-            "Referrer-Policy": "no-referrer"
-        }
 
     def test_sql_injection(self, endpoint):
         """Prueba inyección SQL"""
@@ -36,13 +29,7 @@ class APISecurityTester:
 
         for method in methods:
             try:
-                # Añadir cabeceras de seguridad a la solicitud
-                headers = {
-                    **self.security_headers,
-                    "User-Agent": "APISecurityTester/1.0"
-                }
-                
-                response = requests.request(method, url, headers=headers)
+                response = requests.request(method, url)
                 method_results[method] = {
                     'status_code': response.status_code,
                     'response_text': response.text
@@ -117,7 +104,7 @@ class APISecurityTester:
         ]
         for endpoint in endpoints:
             url = urljoin(self.base_url, endpoint)
-            response = requests.get(url, headers=self.security_headers)
+            response = requests.get(url)
             print(f"Testing {url} | Status Code: {response.status_code}")
             if response.status_code == 200:
                 print(f"[!] Endpoint sensible detectado: {url}")
@@ -125,41 +112,97 @@ class APISecurityTester:
     def test_rate_limiting(self, endpoint):
         """Prueba limitación de tasa"""
         url = urljoin(self.base_url, endpoint)
-        for i in range(20):  # Simula múltiples solicitudes rápidas
-            try:
-                response = requests.get(url, headers={
-                    **self.security_headers,
-                    "X-Forwarded-For": f"192.168.1.{i}"  # Simular diferentes IPs
-                })
-                print(f"Request {i+1} - Status Code: {response.status_code}")
-                if response.status_code == 429:  # Código HTTP para límite alcanzado
-                    print("[+] Limitación de tasa activa en el endpoint")
-                    break
-            except Exception as e:
-                print(f"Error en solicitud {i+1}: {e}")
+        for _ in range(20):  # Simula múltiples solicitudes rápidas
+            response = requests.get(url)
+            print(f"Status Code: {response.status_code}")
+            if response.status_code == 429:  # Código HTTP para límite alcanzado
+                print("[+] Limitación de tasa activa en el endpoint")
+                break
         else:
             print("[!] Endpoint sin limitación de tasa aparente")
 
     def test_headers(self, endpoint):
         """Verifica encabezados de seguridad"""
         url = urljoin(self.base_url, endpoint)
-        response = requests.get(url, headers=self.security_headers)
-        
+        response = requests.get(url)
+        security_headers = [
+            "Content-Security-Policy",
+            "Strict-Transport-Security",
+            "X-Frame-Options",
+            "X-Content-Type-Options",
+            "Referrer-Policy"
+        ]
         print(f"Testing headers for {url}")
-        
-        # Verificar cabeceras de seguridad definidas
-        for header, expected_value in self.security_headers.items():
+        for header in security_headers:
             if header not in response.headers:
                 print(f"[!] Header de seguridad ausente: {header}")
             else:
-                current_value = response.headers[header]
                 print(f"[+] Header presente: {header}")
-                # Opcional: Verificar si el valor es el esperado
-                if current_value != expected_value:
-                    print(f"   [?] Valor actual: {current_value}")
-                    print(f"   [?] Valor esperado: {expected_value}")
 
-    # Resto de los métodos permanecen igual...
+    def test_login(self, login_endpoint, credentials):
+        """Prueba login con diferentes credenciales"""
+        url = urljoin(self.base_url, login_endpoint)
+        response = requests.post(url, json=credentials)
+        print(f"Testing login at {url} | Status Code: {response.status_code}")
+        if response.status_code == 200 and "token" in response.json():
+            print("[+] Login exitoso, token recibido.")
+        elif response.status_code == 401:
+            print("[!] Credenciales inválidas detectadas correctamente.")
+        else:
+            print(f"[!] Respuesta inesperada: {response.json()}")
+
+    def test_register(self, register_endpoint, user_data):
+        """Prueba registro de usuarios"""
+        url = urljoin(self.base_url, register_endpoint)
+        response = requests.post(url, json=user_data)
+        print(f"Testing registration at {url} | Status Code: {response.status_code}")
+        if response.status_code == 201:
+            print("[+] Registro exitoso.")
+        elif response.status_code == 400:
+            print("[!] Error en datos de registro.")
+        else:
+            print(f"[!] Respuesta inesperada: {response.json()}")
+
+    def test_register_validation(self, register_endpoint):
+        """Prueba validaciones de registro"""
+        invalid_user_data = [
+            {"username": "", "password": "validpassword"},  # Nombre de usuario vacío
+            {"username": "user", "password": ""},  # Contraseña vacía
+            {"username": "user", "password": "short"},  # Contraseña demasiado corta
+            {"username": "user", "password": "123456"},  # Contraseña débil
+        ]
+        for user_data in invalid_user_data:
+            self.test_register(register_endpoint, user_data)
+
+    def test_xss(self, endpoint):
+        """Prueba de Cross-Site Scripting (XSS)"""
+        payloads = [
+            "<script>alert('XSS')</script>",
+            "'; DROP TABLE users; --",
+        ]
+        for payload in payloads:
+            url = urljoin(self.base_url, endpoint)
+            response = requests.post(url, json={"input": payload})
+            print(f"Testing XSS with payload: {payload} | Status Code: {response.status_code}")
+            if payload in response.text:
+                print(f"[!] Vulnerabilidad XSS detectada en {endpoint}")
+
+    def test_csrf(self, endpoint):
+        """Prueba de Cross-Site Request Forgery (CSRF)"""
+        url = urljoin(self.base_url, endpoint)
+        response = requests.post(url, data={"action": "delete_account"}, headers={"Referer": "http://localhost:3000/"})
+        print(f"Testing CSRF at {url} | Status Code: {response.status_code}")
+        if response.status_code == 200:
+            print("[!] Posible vulnerabilidad CSRF detectada.")
+
+    def test_command_injection(self, endpoint):
+        """Prueba de inyección de comandos"""
+        payload = {"input": "&& ls -la"}
+        url = urljoin(self.base_url, endpoint)
+        response = requests.post(url, json=payload)
+        print(f"Testing command injection with payload: {payload} | Status Code: {response.status_code}")
+        if "unexpected output" in response.text:  # Cambia esto según la respuesta esperada
+            print("[!] Vulnerabilidad de inyección de comandos detectada.")
 
     def run_tests(self, endpoints):
         """Ejecuta todas las pruebas en los endpoints especificados"""
@@ -174,8 +217,8 @@ class APISecurityTester:
                 self.test_xss(endpoint)
                 self.test_csrf(endpoint)
                 self.test_command_injection(endpoint)
-            except Exception as e:
-                 print(f"Error al probar {endpoint}: {e}")
+            except Exception as e:  # Captura cualquier excepción generada
+                print(f"Error al probar {endpoint}: {e}")
 
 # Ejemplo de uso
 if __name__ == "__main__":
