@@ -1,11 +1,13 @@
 import requests
 from urllib.parse import urljoin
 
+
 class APISecurityTester:
     def __init__(self, base_url):
         self.base_url = base_url
 
     def test_sql_injection(self, endpoint):
+        """Prueba inyección SQL"""
         payloads = [
             "' OR '1'='1",
             "'; DROP TABLE users; --",
@@ -20,12 +22,15 @@ class APISecurityTester:
                 print(f"[!] Posible vulnerabilidad de inyección SQL detectada en {endpoint}")
 
     def test_sensitive_endpoints(self):
+        """Prueba endpoints sensibles o expuestos"""
         endpoints = [
             "/admin",
             "/config",
             "/.env",
             "/backup",
-            "/users"
+            "/users",
+            "/register",
+            "/productos"
         ]
         for endpoint in endpoints:
             url = urljoin(self.base_url, endpoint)
@@ -35,6 +40,7 @@ class APISecurityTester:
                 print(f"[!] Endpoint sensible detectado: {url}")
 
     def test_rate_limiting(self, endpoint):
+        """Prueba limitación de tasa"""
         url = urljoin(self.base_url, endpoint)
         for _ in range(20):  # Simula múltiples solicitudes rápidas
             response = requests.get(url)
@@ -45,11 +51,67 @@ class APISecurityTester:
         else:
             print("[!] Endpoint sin limitación de tasa aparente")
 
+    def test_headers(self, endpoint):
+        """Verifica encabezados de seguridad"""
+        url = urljoin(self.base_url, endpoint)
+        response = requests.get(url)
+        security_headers = [
+            "Content-Security-Policy",
+            "Strict-Transport-Security",
+            "X-Frame-Options",
+            "X-Content-Type-Options",
+            "Referrer-Policy"
+        ]
+        print(f"Testing headers for {url}")
+        for header in security_headers:
+            if header not in response.headers:
+                print(f"[!] Header de seguridad ausente: {header}")
+            else:
+                print(f"[+] Header presente: {header}")
+
+    def test_login(self, login_endpoint, credentials):
+        """Prueba login con diferentes credenciales"""
+        url = urljoin(self.base_url, login_endpoint)
+        response = requests.post(url, json=credentials)
+        print(f"Testing login at {url} | Status Code: {response.status_code}")
+        if response.status_code == 200 and "token" in response.json():
+            print("[+] Login exitoso, token recibido.")
+        elif response.status_code == 401:
+            print("[!] Credenciales inválidas detectadas correctamente.")
+        else:
+            print(f"[!] Respuesta inesperada: {response.json()}")
+
+    def test_register(self, register_endpoint, user_data):
+        """Prueba registro de usuarios"""
+        url = urljoin(self.base_url, register_endpoint)
+        response = requests.post(url, json=user_data)
+        print(f"Testing registration at {url} | Status Code: {response.status_code}")
+        if response.status_code == 201:
+            print("[+] Registro exitoso.")
+        elif response.status_code == 400:
+            print("[!] Error en datos de registro.")
+        else:
+            print(f"[!] Respuesta inesperada: {response.json()}")
+
+    def test_methods(self, endpoint):
+        """Prueba si los métodos HTTP están restringidos correctamente"""
+        url = urljoin(self.base_url, endpoint)
+        methods = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+        for method in methods:
+            response = requests.request(method, url)
+            print(f"Testing {method} at {url} | Status Code: {response.status_code}")
+            if method not in ["GET", "POST"] and response.status_code == 200:
+                print(f"[!] Método no autorizado permitido: {method}")
+
     def run_tests(self):
         print("Iniciando pruebas de seguridad de la API...")
         self.test_sql_injection("/api/register")
         self.test_sensitive_endpoints()
         self.test_rate_limiting("/api/productos")
+        self.test_headers("/")
+        self.test_login("/api/login", {"username": "admin", "password": "password123"})
+        self.test_register("/api/register", {"username": "newuser", "password": "securepassword"})
+        self.test_methods("/api/productos")
 
 
 if __name__ == "__main__":
