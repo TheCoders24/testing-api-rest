@@ -129,7 +129,7 @@ class APISecurityTester:
             try:
                 response = requests.get(url, headers={
                     **self.security_headers,
-                    "X-Forwarded-For": f"192.168.1.{i}"  # Simular diferentes IPs
+                    "X-Forwarded-For": f"http://localhost:3000{i}"  # Simular diferentes IPs
                 })
                 print(f"Request {i+1} - Status Code: {response.status_code}")
                 if response.status_code == 429:  # Código HTTP para límite alcanzado
@@ -224,7 +224,6 @@ class APISecurityTester:
     def test_csrf(self, endpoint):
         """Prueba de Cross-Site Request Forgery (CSRF)"""
         url = urljoin(self.base_url, endpoint)
-        
         # Crear solicitudes con diferentes orígenes y referentes
         csrf_test_cases = [
             {
