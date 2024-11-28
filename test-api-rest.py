@@ -159,7 +159,7 @@ class APISecurityTester:
                     print(f"   [?] Valor actual: {current_value}")
                     print(f"   [?] Valor esperado: {expected_value}")
 
-    # Resto de los métodos permanecen igual...
+  
 
     def run_tests(self, endpoints):
         """Ejecuta todas las pruebas en los endpoints especificados"""
