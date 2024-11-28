@@ -314,4 +314,4 @@ if __name__ == "__main__":
     tester = APISecurityTester("http://localhost:3000/")
     tester.run_tests(["/api/login", "/api/register", "/api/productos"])
     print("Pruebas completadas con éxito.")
-    print("¡Felicitaciones! Tu API está segura.")
+    

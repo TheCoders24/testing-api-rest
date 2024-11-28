@@ -1,0 +1,20 @@
+1. Falta de Validación de Entrada
+En el endpoint /api/register, los parámetros username y password no se validan adecuadamente antes de ser utilizados. Esto puede llevar a errores de tipo TypeError si se envían datos no válidos o si no se envían en absoluto.
+2. Errores de Manejo de Errores
+El código lanza un error TypeError cuando intenta acceder a la propiedad length de username y password sin verificar si estos valores son undefined. Esto puede llevar a una exposición de información sensible o a un comportamiento inesperado de la API.
+3. Inyección SQL Potencial
+Aunque los payloads de inyección SQL devuelven un código de estado 400 o 405, el hecho de que se permita la entrada de datos sin sanitización en el endpoint /api/productos puede ser riesgoso. Si no se implementan medidas adecuadas, un atacante podría intentar inyectar SQL a través de parámetros de consulta.
+4. Falta de Protección Contra XSS
+Aunque los payloads de XSS devuelven un código de estado 400 o 405, no hay una validación o sanitización de la entrada en el endpoint /api/login. Esto significa que si se permite la entrada de datos en el futuro, podría ser vulnerable a ataques XSS.
+5. Falta de Autenticación y Autorización
+No se observa ninguna implementación de autenticación o autorización en los endpoints. Esto significa que cualquier usuario puede acceder a los endpoints sin restricciones, lo que puede llevar a un acceso no autorizado a datos sensibles.
+6. Falta de Cabeceras de Seguridad
+No se están utilizando cabeceras de seguridad recomendadas, como Content-Security-Policy, Strict-Transport-Security, X-Frame-Options, X-Content-Type-Options, y Referrer-Policy. La ausencia de estas cabeceras puede hacer que la aplicación sea vulnerable a varios tipos de ataques, como XSS y clickjacking.
+7. Falta de Limitación de Tasa
+No se observa ninguna implementación de limitación de tasa en los endpoints. Esto puede permitir ataques de fuerza bruta, donde un atacante puede intentar múltiples combinaciones de credenciales sin restricciones.
+8. Manejo Inadecuado de Métodos HTTP
+El endpoint /api/login y /api/register devuelven códigos de estado 405 para métodos no permitidos, pero no se proporciona un manejo adecuado para el método POST, lo que puede llevar a confusión para los usuarios de la API.
+9. Falta de Registro de Errores
+No se observa un sistema de registro de errores que permita a los desarrolladores rastrear y solucionar problemas de seguridad. Esto puede dificultar la identificación de intentos de ataque o fallas en la API.
+10. Exposición de Información Sensible
+Los mensajes de error devueltos por la API pueden proporcionar información sensible sobre la implementación interna, lo que puede ser útil para un atacante. Por ejemplo, el mensaje de error que indica que el username debe tener al menos 3 caracteres puede dar pistas sobre la lógica de validación.
