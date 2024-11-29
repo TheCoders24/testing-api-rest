@@ -229,7 +229,7 @@ class APISecurityTester:
             {
                 "headers": {
                     "Origin": "http://localhost:3000",
-                    "Referer": "http://localhost:3000/"
+                    "Referer": "http://localhost:3000"
                 },
                 "data": {"action": "delete_account"}
             },
